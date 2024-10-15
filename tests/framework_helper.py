@@ -3,8 +3,7 @@ import logging
 import time
 import random
 import socket
-from cookielib import logger
-
+import logging
 
 class hsl20_4:
     LOGGING_NONE = 0
@@ -37,7 +36,7 @@ class hsl20_4:
         def _set_remanent(self, key, val):
             # type: (str, any) -> None
             self.debug_set_remanent[key] = val
-            print "# Module #{} REMANENT: Pin {} -> \t{}".format(self._get_module_id(), key, val)
+            logging.info("# Module #{} REMANENT: Pin {} -> \t{}".format(self._get_module_id(), key, val))
 
         def _set_output_value(self, pin, value):
             # type: (int, any) -> None
@@ -49,12 +48,12 @@ class hsl20_4:
                     name = names
                     break
 
-            print "# Module #{} OUT: Pin {} ({}) -> \t{}".format(self._get_module_id(), pin, name, value)
+            logging.info("# Module #{} OUT: Pin {} ({}) -> \t{}".format(self._get_module_id(), pin, name, value))
 
         def _set_input_value(self, pin, value):
             # type: (int, any) -> None
             self.debug_input_value[int(pin)] = value
-            print "# Module #{} IN: Pin {} -> \t{}".format(self._get_module_id(), pin, value)
+            logging.info("# Module #{} IN: Pin {} -> \t{}".format(self._get_module_id(), pin, value))
 
         def _get_input_value(self, pin):
             # type: (int) -> any
@@ -102,8 +101,11 @@ class hsl20_4:
 
         def set_value(self, cap, text):
             curr_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            print("{time}\t# SET VAL # {caption} -> {data}".format(time=curr_time, caption=cap, data=text))
+            logging.info("# SET VAL # {caption} -> {data}".format(time=curr_time, caption=cap, data=text))
 
         def add_message(self, msg):
             curr_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            print("{time}\t# ADD MSG # {msg}".format(time=curr_time, msg=msg))
+            logging.info("# ADD MSG # {msg}".format(time=curr_time, msg=msg))
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("framework_helper")

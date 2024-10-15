@@ -1,8 +1,8 @@
 # coding: UTF-8
 import json
+import logging
 from datetime import datetime, timedelta
 import threading
-from logging import exception
 
 
 ##!!!!##################################################################################################
@@ -77,7 +77,7 @@ class Tibber_sets14406(hsl20_4.BaseModule):
         # type: json
         # return: updated json object of price infos
         try:
-            if self.debug: print("DEBUG | Entering pre_process_prices()...")
+            if self.debug: logger.debug("DEBUG | Entering pre_process_prices()...")
 
             cheap_price = float(self._get_input_value(self.PIN_I_CHEAP))
             expensive_price = float(self._get_input_value(self.PIN_I_EXPENSIVE))
@@ -106,7 +106,7 @@ class Tibber_sets14406(hsl20_4.BaseModule):
 
     def update_time_control(self):
         if self.interval_update_time_control == 0:
-            print("DEBUG | update_time_control | Timer interval = 0; Aborting.\n")
+            logger.debug("update_time_control | Timer interval = 0; Aborting.\n")
             return
 
         self.log_msg("Evaluating Time Sets.")
@@ -156,7 +156,7 @@ class Tibber_sets14406(hsl20_4.BaseModule):
     def update(self):
         # calc status
         if self.interval_update == 0:
-            print("DEBUG | update | Timer interval= 0; Aborting.")
+            logger.debug("update | Timer interval= 0; Aborting.")
             return
 
         now = datetime.now()
@@ -236,7 +236,7 @@ class PriceList:
             return
 
         try:
-            print("DEBUG | create_intervals | Checking {} time slots".format(len(self.prices)))
+            logger.debug("create_intervals | Checking {} time slots".format(len(self.prices)))
 
             start = self.prices[0].get_start_s()
             start_dt = self.prices[0].start
@@ -266,7 +266,7 @@ class PriceList:
 
             for interval in self.intervals:
                 if interval["stopsAt_dt"] < now_dt:
-                    print("DEBUG | create_intervals | Interval outdated because {} < now_dt={}".format(interval["stopsAt_dt"], now_dt))
+                    logger.debug("create_intervals | Interval outdated because {} < now_dt={}".format(interval["stopsAt_dt"], now_dt))
                     continue
 
                 skip = False
@@ -276,7 +276,7 @@ class PriceList:
                     former_start_h = former_interval["startsAt_dt"].hour
                     former_stop_h = former_interval["stopsAt_dt"].hour
                     if former_start_h < curr_start_h < former_stop_h or former_start_h < curr_stop_h < former_stop_h:
-                        print("DEBUG | create_intervals | Interval overlaps previous interval. Skipping it.")
+                        logger.debug("create_intervals | Interval overlaps previous interval. Skipping it.")
                         skip = True
                         break
 
@@ -292,9 +292,9 @@ class PriceList:
         except Exception as e:
             raise Exception("create_intervals | {}".format(e))
 
-        print("DEBUG | create_interval | Active cheap intervals:     {}".format(self.cheap))
-        print("DEBUG | create_interval | Active expensive intervals: {}".format(self.expensive))
-        print("DEBUG | create_interval | Active normal intervals:    {}".format(self.normal))
+        logger.info("create_interval | Active cheap intervals:     {}".format(self.cheap))
+        logger.info("create_interval | Active expensive intervals: {}".format(self.expensive))
+        logger.info("create_interval | Active normal intervals:    {}".format(self.normal))
 
     def _add_interval(self, start, start_dt, stop, stop_dt, level):
         """Helper method to add an interval and print debug information."""
@@ -305,7 +305,7 @@ class PriceList:
             "stopsAt_dt": stop_dt,
             "level": level
         })
-        print("DEBUG | create_intervals | Adding: {}".format(self.print_interval(-1)))
+        logger.debug("create_intervals | Adding: {}".format(self.print_interval(-1)))
 
     def print_interval(self, index):
         interval = self.intervals[index]
@@ -365,3 +365,7 @@ class PriceInfo:
         #dt = datetime.strptime(date_time[:19], "%Y-%m-%dT%H:%M:%S")
         time_output = date_time.strftime("%H:%M")
         return time_output
+
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("14406")

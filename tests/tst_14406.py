@@ -1,10 +1,12 @@
 # coding: UTF-8
+import logging
 import struct
 import time
 import unittest
 import json
 from datetime import datetime, timedelta
-from mock import patch
+
+from framework_helper import logger
 
 ################################
 # get the code
@@ -207,6 +209,8 @@ class TestSequenceFunctions(unittest.TestCase):
 
         self.tst.interval_update_time_control = 0
         self.tst.interval_update = 0
+
+        logger.setLevel(logging.INFO)
 
         self.tst.on_init()
 
