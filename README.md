@@ -13,6 +13,7 @@ der Strom günstig bzw. teuer ist. Der Anwendungsfall ist das Steuer von Batteri
 | 2   | Prices Tomorrow    |                 | Link auf entsprechenden Ausgang von [Tibber (14464) ](https://github.com/SvenBunge/hs_tibber) |
 | 3   | Cheap [€]          | 0.23            | Preis, ab dem Einzelpreise als "günstig" gewertet werden, unabhängig vom Durchschnittspreis.  |
 | 4   | Expensive [€]      | 0.99            | Preis, ab dem Einzelpreise als "teuer" gewertet werden, unabhängig vom Durchschnittspreis.    | 
+| 5   | Normal Usag        | 0               | "Normal"-Preisen könne mit -1 einem günstigen Preis-Intervall zugeordnet werden.<br>1 interpretiert Normale-Intervalle als "teuer",<br>0 ordnet sie weder den teuren, noch den günstigen Intervallen zu. |
 
 ## Ausgänge
 
@@ -65,7 +66,12 @@ Der Code des Bausteins befindet sich in der hslz Datei oder auf [github](https:/
 
 ## Anforderungen
 
--
+- Der Baustein soll die nächsten günstigen Preisintervalle ausgeben.
+- Der Baustein soll die nächsten teuren Preisintervalle ausgeben.
+- Zeiten sollen im Format HH:MM ausgegeben werden.
+- Überlappen Zeitintervalle (bspw. weil sie an verschiedenen Tagel liegen) soll nur das zeitlich näherliegende ausgegeben werden.
+- Abgelaufene Intervalle sollen nicht mehr ausgegeben werden.
+- Wird ein Intervall nicht genutzt, soll Start- und Stoppzeit auf "00:00" gesetzt werden.
 
 ## Software Design Description
 
