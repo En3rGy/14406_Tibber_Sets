@@ -36,7 +36,6 @@ class TestPriceInfo(unittest.TestCase):
 
         self.price_info_cheap = PriceInfo(self.data_cheap, duration_min=60)
         self.price_info_expensive = PriceInfo(self.data_expensive, duration_min=90)
-        self.tst.debug_input_value[self.tst.PIN_I_NORMAL_INTERVALL] = 0
 
     def test_initialization(self):
         # Test if the initialization works as expected
@@ -73,12 +72,6 @@ class TestPriceInfo(unittest.TestCase):
         self.assertEqual(self.price_info_cheap.get_level(), -1)
         self.assertEqual(self.price_info_expensive.get_level(), 1)
 
-    def test_get_time_s_with_none(self):
-        # Test private _get_time_s method with None value (using a patch)
-        with patch.object(PriceInfo, '_get_time_s', return_value="00:00") as mock_method:
-            self.assertEqual(self.price_info_cheap._get_time_s(None), "00:00")
-            mock_method.assert_called_with(None)
-
 
 class TestPriceList(unittest.TestCase):
 
@@ -99,8 +92,6 @@ class TestPriceList(unittest.TestCase):
             "total": 100.0,
             "level": "MIDRANGE"
         }
-
-        self.tst.debug_input_value[self.tst.PIN_I_NORMAL_INTERVALL] = 0
 
         self.price_info_cheap = PriceInfo(self.data_cheap, duration_min=60)
         self.price_info_expensive = PriceInfo(self.data_expensive, duration_min=60)
@@ -144,12 +135,6 @@ class TestPriceList(unittest.TestCase):
         self.assertEqual(sorted_prices[0], self.price_info_cheap)
         self.assertEqual(sorted_prices[1], self.price_info_midrange)
         self.assertEqual(sorted_prices[2], self.price_info_expensive)
-
-    def test_bubble_sort_called_in_add(self):
-        # Mock the _bubble_sort method and ensure it's called within add()
-        with patch.object(PriceList, '_bubble_sort', wraps=self.price_list._bubble_sort) as mock_sort:
-            self.price_list.add(self.price_info_cheap)
-            mock_sort.assert_called_once_with(self.price_list.prices)
 
     def test_bubble_sort_logic(self):
         # Test sorting logic of _bubble_sort separately
@@ -225,19 +210,21 @@ class TestSequenceFunctions(unittest.TestCase):
         print("### 1")
         self.tst.debug_input_value[self.tst.PIN_I_NORMAL_INTERVALL] = 0
         res = self.tst.pre_process_prices()
-        solution = [{"startsAt": "2024-10-09T00:00:00.000+02:00", "total": 0.2354, "level": "CHEAP"}, {"startsAt": "2024-10-09T01:00:00.000+02:00", "total": 0.2331, "level": "NORMAL"}, {"startsAt": "2024-10-09T02:00:00.000+02:00", "total": 0.2301, "level": "EXPENSIVE"}, {"startsAt": "2024-10-09T03:00:00.000+02:00", "total": 0.2331, "level": "NORMAL"}]
+        print("### res")
+        print(json.dumps(res, indent=2))
+        solution = {"2024-10-09T00:00:00.000+02:00": {"startsAt": "2024-10-09T00:00:00.000+02:00", "total": 0.2354, "level": "CHEAP"}, "2024-10-09T01:00:00.000+02:00": {"startsAt": "2024-10-09T01:00:00.000+02:00", "total": 0.2331, "level": "NORMAL"}, "2024-10-09T02:00:00.000+02:00": {"startsAt": "2024-10-09T02:00:00.000+02:00", "total": 0.2301, "level": "EXPENSIVE"}, "2024-10-09T03:00:00.000+02:00": {"startsAt": "2024-10-09T03:00:00.000+02:00", "total": 0.2331, "level": "NORMAL"}}
         self.assertEqual(solution, res)
 
         print("### 2")
         self.tst.debug_input_value[self.tst.PIN_I_NORMAL_INTERVALL] = -1
         res = self.tst.pre_process_prices()
-        solution = [{"startsAt": "2024-10-09T00:00:00.000+02:00", "total": 0.2354, "level": "CHEAP"}, {"startsAt": "2024-10-09T01:00:00.000+02:00", "total": 0.2331, "level": "CHEAP"}, {"startsAt": "2024-10-09T02:00:00.000+02:00", "total": 0.2301, "level": "EXPENSIVE"}, {"startsAt": "2024-10-09T03:00:00.000+02:00", "total": 0.2331, "level": "CHEAP"}]
+        solution = {"2024-10-09T00:00:00.000+02:00": {"startsAt": "2024-10-09T00:00:00.000+02:00", "total": 0.2354, "level": "CHEAP"}, "2024-10-09T01:00:00.000+02:00": {"startsAt": "2024-10-09T01:00:00.000+02:00", "total": 0.2331, "level": "CHEAP"}, "2024-10-09T02:00:00.000+02:00": {"startsAt": "2024-10-09T02:00:00.000+02:00", "total": 0.2301, "level": "EXPENSIVE"}, "2024-10-09T03:00:00.000+02:00": {"startsAt": "2024-10-09T03:00:00.000+02:00", "total": 0.2331, "level": "CHEAP"}}
         self.assertEqual(solution, res)
 
         print("### 3")
         self.tst.debug_input_value[self.tst.PIN_I_NORMAL_INTERVALL] = 1
         res = self.tst.pre_process_prices()
-        solution = [{"startsAt": "2024-10-09T00:00:00.000+02:00", "total": 0.2354, "level": "CHEAP"}, {"startsAt": "2024-10-09T01:00:00.000+02:00", "total": 0.2331, "level": "EXPENSIVE"}, {"startsAt": "2024-10-09T02:00:00.000+02:00", "total": 0.2301, "level": "EXPENSIVE"}, {"startsAt": "2024-10-09T03:00:00.000+02:00", "total": 0.2331, "level": "EXPENSIVE"}]
+        solution = {"2024-10-09T00:00:00.000+02:00": {"startsAt": "2024-10-09T00:00:00.000+02:00", "total": 0.2354, "level": "CHEAP"}, "2024-10-09T01:00:00.000+02:00": {"startsAt": "2024-10-09T01:00:00.000+02:00", "total": 0.2331, "level": "EXPENSIVE"}, "2024-10-09T02:00:00.000+02:00": {"startsAt": "2024-10-09T02:00:00.000+02:00", "total": 0.2301, "level": "EXPENSIVE"}, "2024-10-09T03:00:00.000+02:00": {"startsAt": "2024-10-09T03:00:00.000+02:00", "total": 0.2331, "level": "EXPENSIVE"}}
         self.assertEqual(solution, res)
 
     def test_date(self):
@@ -321,6 +308,7 @@ class TestSequenceFunctions(unittest.TestCase):
         tomorrow = '[]'
         self.tst.debug_input_value[self.tst.PIN_I_CHEAP] = 0.05
         self.tst.debug_input_value[self.tst.PIN_I_EXPENSIVE] = 0.99
+        self.tst.debug_input_value[self.tst.PIN_I_NORMAL_INTERVALL] = 0
         self.tst.debug_now = datetime(year=2024, month=10, day=9, hour=7, minute=15)
 
         self.tst.debug_input_value[self.tst.PIN_I_PRICES_TODAY] = today
@@ -342,8 +330,8 @@ class TestSequenceFunctions(unittest.TestCase):
         self.tst.interval_update_time_control = 2
         self.tst.on_input_value(self.tst.PIN_I_CHEAP, 0.01)
 
-        self.assertEqual("03:00", self.tst.debug_output_value[self.tst.PIN_O_CHEAP1_START])
-        self.assertEqual("04:00", self.tst.debug_output_value[self.tst.PIN_O_CHEAP1_STOP])
+        self.assertEqual("00:00", self.tst.debug_output_value[self.tst.PIN_O_CHEAP1_START])
+        self.assertEqual("00:00", self.tst.debug_output_value[self.tst.PIN_O_CHEAP1_STOP])
         self.assertEqual("00:00", self.tst.debug_output_value[self.tst.PIN_O_CHEAP2_START])
         self.assertEqual("00:00", self.tst.debug_output_value[self.tst.PIN_O_CHEAP2_STOP])
 

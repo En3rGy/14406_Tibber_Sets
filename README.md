@@ -2,8 +2,8 @@
 
 ## Beschreibung 
 
-Der Baustein nutzt den Ausgang von Baustein [Tibber (14464) ](https://github.com/SvenBunge/hs_tibber) und bestimmt Zeitfentser, in denen
-der Strom günstig bzw. teuer ist. Der Anwendungsfall ist das Steuer von Batterien bzgl. laden und entladen.
+Der Baustein nutzt den Ausgang von Baustein [Tibber (14464)](https://github.com/SvenBunge/hs_tibber) und bestimmt Zeitfenster, in denen
+der Strom günstig bzw. teuer ist. Der Anwendungsfall ist das Steuern von Batterien bzgl. laden und entladen.
 
 ## Eingänge
 
@@ -19,18 +19,22 @@ der Strom günstig bzw. teuer ist. Der Anwendungsfall ist das Steuer von Batteri
 
 Zeiten als String im Format HH:MM, z.B. 07:00
 
-| Nr. | Name                     | Initialisierung | Beschreibung                               |
-|-----|--------------------------|-----------------|--------------------------------------------|
-| 1   | Cheap Period Start 1     |                 | Beginn des 1. Günstig-Abschnitts           |
-| 2   | Cheap Period Stop 1      |                 | Ende des 1. Günstig-Abschnitts             |
-| 3   | Cheap Period Start 2     |                 | Beginn des 1. Günstig-Abschnitts           |
-| 4   | Cheap Period Stop 2      |                 | Ende des 1. Günstig-Abschnitts             |
-| 5   | Expensive Period Start 1 |                 | Beginn des 1. Teuer-Abschnitts             |
-| 6   | Expensive Period Stop 1  |                 | Ende des 1. Teuer-Abschnitts               |
-| 7   | Expensive Period Start 2 |                 | Beginn des 2. Teuer-Abschnitts             |
-| 8   | Expensive Period Stop 2  |                 | Ende des 2. Teuer-Abschnitts               |
-| 9   | Is Cheap                 | 0               | 1, wenn aktuell ein Günstig-Abschnitt ist. |
-| 10  | Is Expensive             | 0               | 1, wenn aktuell ein Teuer-Abschnitt ist.   |
+| Nr. | Name                     | Initialisierung | Beschreibung                                                   |
+|-----|--------------------------|-----------------|----------------------------------------------------------------|
+| 1   | Cheap Period Start 1     |                 | Beginn des 1. Günstig-Abschnitts                               |
+| 2   | Cheap Period Stop 1      |                 | Ende des 1. Günstig-Abschnitts                                 |
+| 3   | Cheap Period Start 2     |                 | Beginn des 1. Günstig-Abschnitts                               |
+| 4   | Cheap Period Stop 2      |                 | Ende des 1. Günstig-Abschnitts                                 |
+| 5   | Expensive Period Start 1 |                 | Beginn des 1. Teuer-Abschnitts                                 |
+| 6   | Expensive Period Stop 1  |                 | Ende des 1. Teuer-Abschnitts                                   |
+| 7   | Expensive Period Start 2 |                 | Beginn des 2. Teuer-Abschnitts                                 |
+| 8   | Expensive Period Stop 2  |                 | Ende des 2. Teuer-Abschnitts                                   |
+| 9   | Is Cheap                 | 0               | 1, wenn aktuell ein Günstig-Abschnitt ist.                     |
+| 10  | Is Expensive             | 0               | 1, wenn aktuell ein Teuer-Abschnitt ist.                       |
+| 11  | Price Level +1h          | 0               | Current price level with -1 = cheap, 0 = normal, 1 = expensive |
+| 12  | Price Level +1h          | 0               | Price level in 1h with -1 = cheap, 0 = normal, 1 = expensive   |
+| 13  | Price Level +2h          | 0               | Price level in 2h with -1 = cheap, 0 = normal, 1 = expensive   |
+| 14  | Price Level +3h          | 0               | Price level in 3h with -1 = cheap, 0 = normal, 1 = expensive   |
 
 ## Sonstiges
 

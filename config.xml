@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
     <modules>
-        <module category="Energiemanagement" context="tibber_sets_14406" id="14406" name="tibber_sets" external_name="Tibber Sets (14406)" version="0.2">
+        <module category="Energiemanagement" context="tibber_sets_14406" id="14406" name="tibber_sets" external_name="Tibber Sets (14406)" version="1.0">
             <inputs>
                 <input type="string" const_name="prices_today" init_value="">Prices Today</input>
                 <input type="string" const_name="prices_tomorrow" init_value="">Prices Tomorrow</input>
@@ -20,6 +20,10 @@
                 <output type="string" const_name="expensive2_stop" init_value="">Expensive Period Stop 2</output>
                 <output type="number" const_name="is_cheap" init_value="0">Is Cheap</output>
                 <output type="number" const_name="is_expensive" init_value="0">Is Expensive</output>
+                <output type="number" const_name="price_level_t0" init_value="0">Price Level +0h</output>
+                <output type="number" const_name="price_level_t1" init_value="0">Price Level +1h</output>
+                <output type="number" const_name="price_level_t2" init_value="0">Price Level +2h</output>
+                <output type="number" const_name="price_level_t3" init_value="0">Price Level +3h</output>
             </outputs>
            <remanent_variables>
             </remanent_variables>

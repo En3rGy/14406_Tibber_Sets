@@ -31,6 +31,10 @@ class Tibber_sets14406(hsl20_4.BaseModule):
         self.PIN_O_EXPENSIVE2_STOP=8
         self.PIN_O_IS_CHEAP=9
         self.PIN_O_IS_EXPENSIVE=10
+        self.PIN_O_PRICE_LEVEL_T0=11
+        self.PIN_O_PRICE_LEVEL_T1=12
+        self.PIN_O_PRICE_LEVEL_T2=13
+        self.PIN_O_PRICE_LEVEL_T3=14
 
 ########################################################################################################
 #### Own written code can be placed after this commentblock . Do not change or delete commentblock! ####
@@ -62,12 +66,15 @@ class Tibber_sets14406(hsl20_4.BaseModule):
         self.DEBUG.set_value("14406 ({}) {}".format(self._get_module_id(), key), str(value))
 
     def _input_convert(self, data_in):
+        ret = []
         if isinstance(data_in, list):
-            return data_in
+            ret = data_in
         elif isinstance(data_in, basestring):
             data_in = data_in.replace("'", '"').replace('u"', '"')
-            return json.loads(data_in)
-        return []
+            ret = json.loads(data_in)
+
+        ret = {entry['startsAt']: entry for entry in ret}
+        return ret
 
     def pre_process_prices(self):
         # 1. Collect price info
@@ -81,30 +88,35 @@ class Tibber_sets14406(hsl20_4.BaseModule):
 
             cheap_price = float(self._get_input_value(self.PIN_I_CHEAP))
             expensive_price = float(self._get_input_value(self.PIN_I_EXPENSIVE))
-            today = self._get_input_value(self.PIN_I_PRICES_TODAY)
-            tomorrow = self._get_input_value(self.PIN_I_PRICES_TOMORROW)
             normal_index = self._get_input_value(self.PIN_I_NORMAL_INTERVALL)
 
-            data = self._input_convert(today)
-            prices_tomorrow = self._input_convert(tomorrow)
-            data.extend(prices_tomorrow)
+            today = self._get_input_value(self.PIN_I_PRICES_TODAY)
+            self.log_data("Today", json.dumps(today))
+            today = self._input_convert(today)
+
+            tomorrow = self._get_input_value(self.PIN_I_PRICES_TOMORROW)
+            self.log_data("Tomorrow", json.dumps(tomorrow))
+            tomorrow = self._input_convert(tomorrow)
+
+            data = today
+            data.update(tomorrow)
+            # print(json.dumps(data, indent=2))
         except Exception as e:
             raise Exception("pre_process_prices | Error loading Tibber jsons: {}".format(e))
 
         try:
-            for i in range(len(data)):
-                if data[i]["total"] < cheap_price or (normal_index == -1 and data[i]["level"] == "NORMAL"):
-                    data[i]["level"] = "CHEAP"
-                elif data[i]["total"] > expensive_price or (normal_index == 1 and data[i]["level"] == "NORMAL"):
-                    data[i]["level"] = "EXPENSIVE"
+            for key in data.keys():
+                if data[key]["total"] < cheap_price or (normal_index == -1 and data[key]["level"] == "NORMAL"):
+                    data[key]["level"] = "CHEAP"
+                elif data[key]["total"] > expensive_price or (normal_index == 1 and data[key]["level"] == "NORMAL"):
+                    data[key]["level"] = "EXPENSIVE"
         except Exception as e:
             raise Exception("pre_process_prices | Error working with tibber jsons: {}".format(e))
 
-        self.log_data("Today", json.dumps(today))
-        self.log_data("Tomorrow", json.dumps(tomorrow))
         return data
 
     def update_time_control(self):
+        # print("Entering update_time_control()...")
         if self.interval_update_time_control == 0:
             logger.debug("update_time_control | Timer interval = 0; Aborting.\n")
             return
@@ -129,6 +141,7 @@ class Tibber_sets14406(hsl20_4.BaseModule):
 
             # Set cheap interval values
             cheap_intervals = self.price_list.get_intervals(-1)
+
             cheap1 = cheap_intervals[0] if len(cheap_intervals) > 0 else interval_defaults
             self.set_output_value_sbc(self.PIN_O_CHEAP1_START, cheap1["startsAt"])
             self.set_output_value_sbc(self.PIN_O_CHEAP1_STOP, cheap1["stopsAt"])
@@ -159,12 +172,19 @@ class Tibber_sets14406(hsl20_4.BaseModule):
             logger.debug("update | Timer interval= 0; Aborting.")
             return
 
-        now = datetime.now()
+        now = self.debug_now if self.debug else datetime.now()
         for price in self.price_list.prices:
+            level = price.get_level()
             if price.start < now < price.stop:
-                level = price.get_level()
                 self.set_output_value_sbc(self.PIN_O_IS_CHEAP, level == -1)
                 self.set_output_value_sbc(self.PIN_O_IS_EXPENSIVE, level == 1)
+                self.set_output_value_sbc(self.PIN_O_PRICE_LEVEL_T0, level)
+            elif price.start < now + timedelta(hours=1) < price.stop:
+                self.set_output_value_sbc(self.PIN_O_PRICE_LEVEL_T1, level)
+            elif price.start < now + timedelta(hours=2) < price.stop:
+                self.set_output_value_sbc(self.PIN_O_PRICE_LEVEL_T2, level)
+            elif price.start < now + timedelta(hours=3) < price.stop:
+                self.set_output_value_sbc(self.PIN_O_PRICE_LEVEL_T3, level)
 
         # try to run each full minute
         delay = self.interval_update - datetime.now().second
@@ -172,8 +192,6 @@ class Tibber_sets14406(hsl20_4.BaseModule):
 
     def on_init(self):
         self.DEBUG = self.FRAMEWORK.create_debug_section()
-        now = datetime.now()
-        delay = self.interval_update - now.second
         self.update_time_control()
         self.update()
 
@@ -187,14 +205,14 @@ class Tibber_sets14406(hsl20_4.BaseModule):
 class PriceList:
     def __init__(self, data=None):
         if data is None:
-            data = []
+            data = {}
         self.prices = [] # type: List[PriceInfo]
         self.cheap = []
         self.expensive = []
         self.normal = []
         self.intervals = []
 
-        for price in data:
+        for price in data.values():
             price_info = PriceInfo(price)
             self.add(price_info)
 
